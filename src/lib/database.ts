@@ -1,11 +1,25 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/news-sentiment-analyzer';
+// Try multiple possible environment variable names for MongoDB URI
+const MONGODB_URI = process.env.MONGODB_URI || 
+                   process.env.DATABASE_URL || 
+                   process.env.MONGO_URL ||
+                   'mongodb://localhost:27017/news-sentiment-analyzer';
 
 // Debug logging for production
 if (process.env.NODE_ENV === 'production') {
-  console.log('MongoDB URI configured:', MONGODB_URI ? 'Yes' : 'No');
-  console.log('Environment variables available:', Object.keys(process.env).filter(key => key.includes('MONGO')));
+  console.log('=== MongoDB Connection Debug ===');
+  console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
+  console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
+  console.log('MONGO_URL:', process.env.MONGO_URL ? 'Set' : 'Not set');
+  console.log('Final URI being used:', MONGODB_URI.substring(0, 20) + '...');
+  console.log('All environment variables containing "MONGO" or "DATABASE":', 
+    Object.keys(process.env).filter(key => 
+      key.toUpperCase().includes('MONGO') || 
+      key.toUpperCase().includes('DATABASE')
+    )
+  );
+  console.log('================================');
 }
 
 interface MongooseConnection {

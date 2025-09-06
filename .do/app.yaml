@@ -6,7 +6,7 @@ services:
     repo: Hemanthbysani/news-sentiment-analyzer
     branch: main
   run_command: npm start
-  build_command: npm run build
+  build_command: npm ci && npm run build
   environment_slug: node-js
   instance_count: 1
   instance_size_slug: basic-xxs

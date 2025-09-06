@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   
+  // Disable telemetry for production
+  telemetry: false,
+  
   // Security headers
   async headers() {
     return [
@@ -33,9 +36,7 @@ const nextConfig: NextConfig = {
   },
 
   // Experimental features for better performance
-  experimental: {
-    serverComponentsExternalPackages: ['mongoose'],
-  },
+  serverExternalPackages: ['mongoose'],
 
   // Image optimization
   images: {

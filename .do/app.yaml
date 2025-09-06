@@ -39,3 +39,29 @@ databases:
   num_nodes: 1
 
 static_sites: []
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: "3000"
+  - key: MONGODB_URI
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: OPENROUTER_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: NEWSAPI_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: GUARDIAN_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+
+databases:
+- name: mongodb
+  engine: MONGODB
+  version: "5"
+  size: basic-xs
+  num_nodes: 1
+
+static_sites: []

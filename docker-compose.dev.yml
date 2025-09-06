@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/news-sentiment-analyzer
+      - NODE_ENV=development
+    depends_on:
+      - mongodb
+    env_file:
+      - .env.local
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    restart: unless-stopped
+    networks:
+      - news-analyzer-network
+
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=news-sentiment-analyzer
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - news-analyzer-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  news-analyzer-network:
+    driver: bridge

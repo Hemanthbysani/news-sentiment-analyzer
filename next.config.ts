@@ -4,9 +4,6 @@ const nextConfig: NextConfig = {
   // Production optimizations
   poweredByHeader: false,
   
-  // Disable telemetry for production
-  telemetry: false,
-  
   // Security headers
   async headers() {
     return [

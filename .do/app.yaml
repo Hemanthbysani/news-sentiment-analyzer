@@ -22,10 +22,9 @@ services:
     value: production
   - key: PORT
     value: "3000"
-  - key: DATABASE_URL
-    value: "${mongodb.DATABASE_URL}"
   - key: MONGODB_URI
-    value: "${mongodb.DATABASE_URL}"
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
   - key: OPENROUTER_API_KEY
     scope: RUN_AND_BUILD_TIME
     type: SECRET

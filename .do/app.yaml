@@ -1,0 +1,41 @@
+name: news-sentiment-analyzer
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: Hemanthbysani/news-sentiment-analyzer
+    branch: main
+  run_command: npm start
+  build_command: npm run build
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 3000
+  health_check:
+    http_path: /api/health
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: "3000"
+  - key: MONGODB_URI
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: OPENROUTER_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: NEWSAPI_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: GUARDIAN_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+
+databases:
+- name: mongodb
+  engine: MONGODB
+  version: "5"
+  size: basic-xs
+  num_nodes: 1
+
+static_sites: []

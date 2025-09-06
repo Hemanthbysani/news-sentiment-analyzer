@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/database';
 import scraperService from '@/services/scraper';
+import WebScraper from '@/services/webScraper';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,16 +18,47 @@ export async function POST(request: NextRequest) {
       body = {};
     }
 
-    const { source } = body as { source?: string };
+    const { source, method } = body as { source?: string; method?: 'rss' | 'web' | 'all' };
 
-    console.log('Starting manual scraping...');
+    console.log('Starting manual scraping...', { source, method });
 
-    if (source === 'rss') {
+    // Web scraping
+    if (method === 'web' || (!method && source === 'web')) {
+      const webScraper = new WebScraper();
+      let scrapedArticles;
+      
+      if (source && source !== 'web') {
+        scrapedArticles = await webScraper.scrapeSource(source);
+      } else {
+        scrapedArticles = await webScraper.scrapeAllSources();
+      }
+      
+      // Process and save to database using existing scraper service
+      await scraperService.processAndSaveArticles(scrapedArticles.map(article => ({
+        title: article.title,
+        description: article.content.substring(0, 200),
+        content: article.content,
+        url: article.url,
+        publishedAt: article.publishedAt,
+        source: article.source,
+        author: article.author
+      })));
+      
+      return NextResponse.json({ 
+        message: 'Web scraping completed',
+        articleCount: scrapedArticles.length,
+        method: 'web'
+      });
+    }
+
+    // RSS scraping (existing functionality)
+    if (method === 'rss' || source === 'rss') {
       const articles = await scraperService.scrapeRSSFeeds();
       await scraperService.processAndSaveArticles(articles);
       return NextResponse.json({ 
         message: 'RSS scraping completed',
-        articleCount: articles.length 
+        articleCount: articles.length,
+        method: 'rss'
       });
     } else if (source === 'newsapi') {
       const articles = await scraperService.scrapeNewsAPI();
@@ -43,7 +75,7 @@ export async function POST(request: NextRequest) {
         articleCount: articles.length 
       });
     } else {
-      // Scrape all sources
+      // Scrape all sources (default)
       await scraperService.scrapeAll();
       return NextResponse.json({ 
         message: 'All sources scraping completed' 

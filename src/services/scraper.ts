@@ -1,9 +1,10 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { createHash } from 'crypto';
+import connectToDatabase from '@/lib/database';
 import { Article, RSSSource } from '@/models';
-import geminiService from './gemini';
-import { addSystemLog } from '@/app/api/system-logs/route';
+import GeminiService from './gemini';
+import { addSystemLog } from '@/lib/systemLogger';
 
 const Parser = require('rss-parser');
 const parser = new Parser({
@@ -418,7 +419,7 @@ class NewsScraperService {
         // Translate if not in English
         if (scrapedArticle.language && scrapedArticle.language !== 'en') {
           try {
-            analysisText = await geminiService.translateText(analysisText, 'en');
+            analysisText = await GeminiService.translateText(analysisText, 'en');
           } catch (error) {
             console.error('Error translating text:', error);
             // Continue with original text
@@ -429,28 +430,28 @@ class NewsScraperService {
         let sentiment, entities, keywordData, readability;
         
         try {
-          sentiment = await geminiService.analyzeSentiment(analysisText);
+          sentiment = await GeminiService.analyzeSentiment(analysisText);
         } catch (error) {
           console.error('Error analyzing sentiment:', error);
           sentiment = { score: 0, confidence: 0.1, label: 'neutral' as const };
         }
 
         try {
-          entities = await geminiService.extractEntities(analysisText);
+          entities = await GeminiService.extractEntities(analysisText);
         } catch (error) {
           console.error('Error extracting entities:', error);
           entities = { person: [], organization: [], location: [], technology: [], other: [] };
         }
 
         try {
-          keywordData = await geminiService.extractKeywords(analysisText);
+          keywordData = await GeminiService.extractKeywords(analysisText);
         } catch (error) {
           console.error('Error extracting keywords:', error);
           keywordData = { keywords: [], topics: [] };
         }
 
         try {
-          readability = await geminiService.calculateReadability(analysisText);
+          readability = await GeminiService.calculateReadability(analysisText);
         } catch (error) {
           console.error('Error calculating readability:', error);
           readability = 5; // Default readability score

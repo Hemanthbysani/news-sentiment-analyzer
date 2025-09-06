@@ -1,33 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/database';
 import { Article, Analytics } from '@/models';
-
-interface SystemLog {
-  timestamp: string;
-  level: 'info' | 'warning' | 'error' | 'success';
-  message: string;
-  details?: any;
-}
-
-// In-memory log storage (in production, you'd use a proper logging service)
-let systemLogs: SystemLog[] = [];
-const MAX_LOGS = 1000;
-
-export function addSystemLog(level: SystemLog['level'], message: string, details?: any) {
-  const log: SystemLog = {
-    timestamp: new Date().toISOString(),
-    level,
-    message,
-    details
-  };
-  
-  systemLogs.unshift(log);
-  
-  // Keep only the last MAX_LOGS entries
-  if (systemLogs.length > MAX_LOGS) {
-    systemLogs = systemLogs.slice(0, MAX_LOGS);
-  }
-}
+import { addSystemLog, getSystemLogs, getSystemLogsCount } from '@/lib/systemLogger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,9 +20,7 @@ export async function GET(request: NextRequest) {
         totalArticles,
         articlesLast24h,
         articlesLastHour,
-        latestAnalytics,
-        recentErrors,
-        recentActivity
+        latestAnalytics
       ] = await Promise.all([
         Article.countDocuments(),
         Article.countDocuments({ 
@@ -63,16 +35,18 @@ export async function GET(request: NextRequest) {
             { createdAt: { $gte: oneHourAgo } }
           ]
         }),
-        Analytics.findOne().sort({ date: -1 }),
-        Promise.resolve(systemLogs.filter(log => log.level === 'error').slice(0, 5)),
-        Promise.resolve(systemLogs.slice(0, 10))
+        Analytics.findOne().sort({ date: -1 })
       ]);
+
+      const allLogs = getSystemLogs();
+      const recentErrors = allLogs.filter(log => log.level === 'error').slice(0, 5);
+      const recentActivity = allLogs.slice(0, 10);
 
       // Calculate processing rate
       const processingRate = articlesLast24h > 0 ? (articlesLast24h / 24).toFixed(1) : '0';
       
       // System health based on recent errors and activity
-      const recentErrorCount = systemLogs.filter(log => 
+      const recentErrorCount = allLogs.filter(log => 
         log.level === 'error' && 
         new Date(log.timestamp) > oneHourAgo
       ).length;
@@ -110,14 +84,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const level = searchParams.get('level');
     
-    let filteredLogs = systemLogs;
-    if (level && ['info', 'warning', 'error', 'success'].includes(level)) {
-      filteredLogs = systemLogs.filter(log => log.level === level);
-    }
+    const filteredLogs = getSystemLogs(limit, level || undefined);
     
     return NextResponse.json({
-      logs: filteredLogs.slice(0, limit),
-      total: filteredLogs.length
+      logs: filteredLogs,
+      total: getSystemLogsCount()
     });
 
   } catch (error) {
@@ -157,6 +128,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Initialize with a startup log
-addSystemLog('info', 'System logs API initialized');

@@ -23,8 +23,7 @@ services:
   - key: PORT
     value: "3000"
   - key: MONGODB_URI
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
+    value: "mongodb+srv://doadmin:6x15JwO403Ln78ma@db-mongodb-nyc3-45609-66531e1f.mongo.ondigitalocean.com/admin?retryWrites=true&w=majority"
   - key: OPENROUTER_API_KEY
     scope: RUN_AND_BUILD_TIME
     type: SECRET

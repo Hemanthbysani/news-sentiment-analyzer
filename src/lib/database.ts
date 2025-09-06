@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI || 
                    process.env.DATABASE_URL || 
                    process.env.MONGO_URL ||
-                   'mongodb://localhost:27017/news-sentiment-analyzer';
+                   'mongodb+srv://doadmin:6x15JwO403Ln78ma@db-mongodb-nyc3-45609-66531e1f.mongo.ondigitalocean.com/admin?retryWrites=true&w=majority';
 
 // Debug logging for production
 if (process.env.NODE_ENV === 'production') {
@@ -12,7 +12,8 @@ if (process.env.NODE_ENV === 'production') {
   console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
   console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
   console.log('MONGO_URL:', process.env.MONGO_URL ? 'Set' : 'Not set');
-  console.log('Final URI being used:', MONGODB_URI.substring(0, 20) + '...');
+  console.log('Final URI being used:', MONGODB_URI.substring(0, 30) + '...');
+  console.log('Connection string is valid MongoDB format:', MONGODB_URI.startsWith('mongodb://') || MONGODB_URI.startsWith('mongodb+srv://'));
   console.log('All environment variables containing "MONGO" or "DATABASE":', 
     Object.keys(process.env).filter(key => 
       key.toUpperCase().includes('MONGO') || 

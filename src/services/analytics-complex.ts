@@ -229,11 +229,11 @@ class AnalyticsService {
       }
     },
     {
-      $sort: { '_id': 1 }
+      $sort: { '_id': 1 as const }
     }
   ];
 
-  const results = await Article.aggregate(pipeline as any[]);    const data: TrendData[] = results.map(result => ({
+  const results = await Article.aggregate(pipeline);    const data: TrendData[] = results.map(result => ({
       date: this.reconstructDate(result._id, timeframe),
       value: result.averageSentiment,
       sentiment: result.averageSentiment,
@@ -296,11 +296,11 @@ class AnalyticsService {
       }
     },
     {
-      $sort: { '_id': 1 }
+      $sort: { '_id': 1 as const }
     }
   ];
 
-  const results = await Article.aggregate(pipeline as any[]);    return results.map(result => ({
+  const results = await Article.aggregate(pipeline);    return results.map(result => ({
       date: this.reconstructDate(result._id, timeframe),
       value: result.count,
       count: result.count
@@ -407,7 +407,8 @@ class AnalyticsService {
     endDate: Date
   ): Promise<TrendData[]> {
     let groupStage: any;
-
+    let sortStage: Record<string, 1 | -1>;
+    
     switch (timeframe) {
       case 'hour':
         groupStage = {
@@ -416,6 +417,7 @@ class AnalyticsService {
           day: { $dayOfMonth: '$publishedAt' },
           hour: { $hour: '$publishedAt' }
         };
+        sortStage = { '_id.year': 1 as const, '_id.month': 1 as const, '_id.day': 1 as const, '_id.hour': 1 as const };
         break;
       case 'day':
         groupStage = {
@@ -423,18 +425,21 @@ class AnalyticsService {
           month: { $month: '$publishedAt' },
           day: { $dayOfMonth: '$publishedAt' }
         };
+        sortStage = { '_id.year': 1 as const, '_id.month': 1 as const, '_id.day': 1 as const };
         break;
       case 'week':
         groupStage = {
           year: { $year: '$publishedAt' },
           week: { $week: '$publishedAt' }
         };
+        sortStage = { '_id.year': 1 as const, '_id.week': 1 as const };
         break;
       case 'month':
         groupStage = {
           year: { $year: '$publishedAt' },
           month: { $month: '$publishedAt' }
         };
+        sortStage = { '_id.year': 1 as const, '_id.month': 1 as const };
         break;
     }
 
@@ -453,11 +458,9 @@ class AnalyticsService {
         }
       },
       {
-        $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1, '_id.hour': 1 }
+        $sort: sortStage
       }
-    ];
-
-    const results = await Article.aggregate(pipeline);
+    ];    const results = await Article.aggregate(pipeline);
     
     return results.map(result => ({
       date: this.reconstructDate(result._id, timeframe),
@@ -474,6 +477,7 @@ class AnalyticsService {
     endDate: Date
   ): Promise<TrendData[]> {
     let groupStage: any;
+    let sortStage: Record<string, 1 | -1>;
 
     switch (timeframe) {
       case 'hour':
@@ -483,6 +487,7 @@ class AnalyticsService {
           day: { $dayOfMonth: '$publishedAt' },
           hour: { $hour: '$publishedAt' }
         };
+        sortStage = { '_id.year': 1 as const, '_id.month': 1 as const, '_id.day': 1 as const, '_id.hour': 1 as const };
         break;
       case 'day':
         groupStage = {
@@ -490,18 +495,21 @@ class AnalyticsService {
           month: { $month: '$publishedAt' },
           day: { $dayOfMonth: '$publishedAt' }
         };
+        sortStage = { '_id.year': 1 as const, '_id.month': 1 as const, '_id.day': 1 as const };
         break;
       case 'week':
         groupStage = {
           year: { $year: '$publishedAt' },
           week: { $week: '$publishedAt' }
         };
+        sortStage = { '_id.year': 1 as const, '_id.week': 1 as const };
         break;
       case 'month':
         groupStage = {
           year: { $year: '$publishedAt' },
           month: { $month: '$publishedAt' }
         };
+        sortStage = { '_id.year': 1 as const, '_id.month': 1 as const };
         break;
     }
 
@@ -520,7 +528,7 @@ class AnalyticsService {
         }
       },
       {
-        $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1, '_id.hour': 1 }
+        $sort: sortStage
       }
     ];
 

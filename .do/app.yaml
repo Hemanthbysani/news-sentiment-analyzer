@@ -13,6 +13,10 @@ services:
   http_port: 3000
   health_check:
     http_path: /api/health
+    failure_threshold: 3
+    success_threshold: 2
+    timeout_seconds: 30
+    period_seconds: 30
   envs:
   - key: NODE_ENV
     value: production
@@ -39,23 +43,6 @@ databases:
   num_nodes: 1
 
 static_sites: []
-  envs:
-  - key: NODE_ENV
-    value: production
-  - key: PORT
-    value: "3000"
-  - key: MONGODB_URI
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-  - key: OPENROUTER_API_KEY
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-  - key: NEWSAPI_API_KEY
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-  - key: GUARDIAN_API_KEY
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
 
 databases:
 - name: mongodb

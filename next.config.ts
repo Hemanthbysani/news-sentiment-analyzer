@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Production optimizations
-  output: 'standalone',
   poweredByHeader: false,
   
   // Disable telemetry for production

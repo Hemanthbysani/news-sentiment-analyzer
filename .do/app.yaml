@@ -23,8 +23,7 @@ services:
   - key: PORT
     value: "3000"
   - key: MONGODB_URI
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
+    value: "${mongodb.DATABASE_URL}"
   - key: OPENROUTER_API_KEY
     scope: RUN_AND_BUILD_TIME
     type: SECRET
